@@ -1578,6 +1578,7 @@ def cancelar_pedido(id):
 # ==================== INICIALIZAR ====================
 
 def crear_tablas():
+    """Crea las tablas de la base de datos y el usuario admin"""
     with app.app_context():
         db.create_all()
         
@@ -1589,7 +1590,9 @@ def crear_tablas():
             db.session.commit()
             print("Usuario admin creado (admin/admin123)")
 
+# Inicializar la base de datos al cargar la aplicación
+crear_tablas()
+
 if __name__ == '__main__':
-    crear_tablas()
     app.run(debug=True, host='0.0.0.0', port=5000)
 
