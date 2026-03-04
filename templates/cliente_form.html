@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{% if cliente %}Editar{% else %}Nuevo{% endif %} Cliente{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-person-plus"></i> {% if cliente %}Editar{% else %}Nuevo{% endif %} Cliente</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text" name="nombre" class="form-control" required value="{{ cliente.nombre if cliente else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Contacto</label>
+                    <input type="text" name="contacto" class="form-control" value="{{ cliente.contacto if cliente else '' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="telefono" class="form-control" value="{{ cliente.telefono if cliente else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ cliente.email if cliente else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Dirección</label>
+                <input type="text" name="direccion" class="form-control" value="{{ cliente.direccion if cliente else '' }}">
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">RUC</label>
+                    <input type="text" name="ruc" class="form-control" value="{{ cliente.ruc if cliente else '' }}">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Cédula</label>
+                    <input type="text" name="cedula" class="form-control" value="{{ cliente.cedula if cliente else '' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">{% if cliente %}Actualizar{% else %}Crear{% endif %} Cliente</button>
+                <a href="{{ url_for('clientes') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

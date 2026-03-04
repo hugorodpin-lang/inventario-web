@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Traslado{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-truck"></i> Nuevo Traslado</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" id="trasladoForm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sucursal Origen *</label>
+                    <select name="sucursal_origen_id" class="form-select" id="sucursalOrigen" required>
+                        <option value="">Seleccionar sucursal...</option>
+                        {% for s in sucursales %}
+                        <option value="{{ s.id }}">{{ s.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Sucursal Destino *</label>
+                    <select name="sucursal_destino_id" class="form-select" id="sucursalDestino" required>
+                        <option value="">Seleccionar sucursal...</option>
+                        {% for s in sucursales %}
+                        <option value="{{ s.id }}">{{ s.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Observaciones</label>
+                    <textarea name="observaciones" class="form-control" rows="2" placeholder="Observaciones del traslado..."></textarea>
+                </div>
+            </div>
+            
+            <hr>
+            <h5>Productos a Trasladar</h5>
+            <div id="productosContainer">
+                <div class="row producto-row mb-2">
+                    <div class="col-md-5">
+                        <select name="producto_id[]" class="form-select producto-select" required>
+                            <option value="">Seleccionar producto...</option>
+                            {% for p in productos %}
+                            <option value="{{ p.id }}" data-stock="0">{{ p.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" min="1" required>
+                    </div>
+                    <div class="col-md-2">
+                        <span class="badge bg-secondary stock-badge">Stock: 0</span>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger btn-remove-producto">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <button type="button" class="btn btn-outline-primary mb-3" id="addProducto">
+                <i class="bi bi-plus-lg"></i> Agregar Producto
+            </button>
+            
+            <hr>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> Crear Traslado
+            </button>
+            <a href="{{ url_for('traslados') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+<script>
+// Actualizar stock disponible cuando cambia la sucursal origen
+document.getElementById('sucursalOrigen').addEventListener('change', function() {
+    actualizarStocks();
+});
+
+document.getElementById('sucursalDestino').addEventListener('change', function() {
+    validarSucursales();
+});
+
+// Validar que origen y destino sean diferentes
+function validarSucursales() {
+    const origen = document.getElementById('sucursalOrigen').value;
+    const destino = document.getElementById('sucursalDestino').value;
+    
+    if (origen && destino && origen === destino) {
+        alert('La sucursal de origen y destino no pueden ser iguales');
+        document.getElementById('sucursalDestino').value = '';
+    }
+}
+
+// Agregar producto
+document.getElementById('addProducto').addEventListener('click', function() {
+    const container = document.getElementById('productosContainer');
+    const newRow = document.createElement('div');
+    newRow.className = 'row producto-row mb-2';
+    newRow.innerHTML = `
+        <div class="col-md-5">
+            <select name="producto_id[]" class="form-select producto-select" required>
+                <option value="">Seleccionar producto...</option>
+                {% for p in productos %}
+                <option value="{{ p.id }}" data-stock="0">{{ p.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" min="1" required>
+        </div>
+        <div class="col-md-2">
+            <span class="badge bg-secondary stock-badge">Stock: 0</span>
+        </div>
+        <div class="col-md-2">
+            <button type="button" class="btn btn-outline-danger btn-remove-producto">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(newRow);
+    agregarEventos(newRow);
+});
+
+// Eliminar producto
+function agregarEventos(row) {
+    row.querySelector('.btn-remove-producto').addEventListener('click', function() {
+        if (document.querySelectorAll('.producto-row').length > 1) {
+            row.remove();
+        }
+    });
+    
+    row.querySelector('.producto-select').addEventListener('change', function() {
+        actualizarStockProducto(row);
+    });
+}
+
+// Agregar eventos a la primera fila
+agregarEventos(document.querySelector('.producto-row'));
+
+// Validar antes de enviar
+document.getElementById('trasladoForm').addEventListener('submit', function(e) {
+    const origen = document.getElementById('sucursalOrigen').value;
+    const destino = document.getElementById('sucursalDestino').value;
+    
+    if (!origen || !destino) {
+        e.preventDefault();
+        alert('Debe seleccionar sucursal de origen y destino');
+        return;
+    }
+    
+    if (origen === destino) {
+        e.preventDefault();
+        alert('La sucursal de origen y destino no pueden ser iguales');
+        return;
+    }
+});
+</script>
+{% endblock %}
+

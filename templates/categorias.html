@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Categorías - Inventario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-tags"></i> Categorías</h2>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('nueva_categoria') }}" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="nombre" class="form-control" placeholder="Nombre de categoría" required>
+            </div>
+            <div class="col-md-5">
+                <input type="text" name="descripcion" class="form-control" placeholder="Descripción">
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Agregar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categorias %}
+                    <tr>
+                        <td>{{ c.nombre }}</td>
+                        <td>{{ c.descripcion or '-' }}</td>
+                        <td>{{ c.productos|length }}</td>
+                        <td>
+                            <a href="{{ url_for('eliminar_categoria', id=c.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar categoría?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No hay categorías</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}Detalle del Traslado #{{ traslado.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-truck"></i> Traslado #{{ traslado.id }}</h2>
+    <div>
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> Imprimir
+        </button>
+        <a href="{{ url_for('traslados') }}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <!-- Información del Traslado -->
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h5><i class="bi bi-building"></i> Sucursal Origen</h5>
+                <p class="mb-1"><strong>Nombre:</strong> {{ traslado.sucursal_origen.nombre }}</p>
+                <p class="mb-1"><strong>Dirección:</strong> {{ traslado.sucursal_origen.direccion or 'No especificada' }}</p>
+            </div>
+            <div class="col-md-6">
+                <h5><i class="bi bi-building-down"></i> Sucursal Destino</h5>
+                <p class="mb-1"><strong>Nombre:</strong> {{ traslado.sucursal_destino.nombre }}</p>
+                <p class="mb-1"><strong>Dirección:</strong> {{ traslado.sucursal_destino.direccion or 'No especificada' }}</p>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <p><strong>Fecha de Envío:</strong> {{ traslado.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+            <div class="col-md-4">
+                <p><strong>Estado:</strong> 
+                    {% if traslado.estado == 'pendiente' %}
+                    <span class="badge bg-warning">Pendiente</span>
+                    {% elif traslado.estado == 'recibido' %}
+                    <span class="badge bg-success">Recibido</span>
+                    {% else %}
+                    <span class="badge bg-danger">Cancelado</span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4">
+                {% if traslado.estado == 'recibido' %}
+                <p><strong>Fecha de Recepción:</strong> {{ traslado.fecha_recibido.strftime('%d/%m/%Y %H:%M') }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if traslado.observaciones %}
+        <div class="mb-4">
+            <h5>Observaciones</h5>
+            <p>{{ traslado.observaciones }}</p>
+        </div>
+        {% endif %}
+        
+        <hr>
+        
+        <!-- Detalle de Productos -->
+        <h5 class="mb-3">Productos Trasladados</h5>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detalle in traslado.detalles %}
+                    <tr>
+                        <td>{{ detalle.producto.codigo }}</td>
+                        <td>{{ detalle.producto.nombre }}</td>
+                        <td>{{ detalle.cantidad }} {{ detalle.producto.unidad }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <th colspan="2" class="text-end">Total Items:</th>
+                        <th>{{ traslado.detalles|length }}</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        
+        <hr>
+        
+        <!-- Firmas para impresión -->
+        <div class="row mt-4 no-print-section">
+            <div class="col-md-6">
+                <div class="border p-3">
+                    <p class="mb-4"><strong>Firma de quien-envía:</strong></p>
+                    <p class="text-muted small">Nombre: _______________________</p>
+                    <p class="text-muted small">Fecha: _______________________</p>
+                    <p class="text-muted small">Hora: _______________________</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="border p-3">
+                    <p class="mb-4"><strong>Firma de quien recibe:</strong></p>
+                    <p class="text-muted small">Nombre: _______________________</p>
+                    <p class="text-muted small">Fecha: _______________________</p>
+                    <p class="text-muted small">Hora: _______________________</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones -->
+{% if traslado.estado == 'pendiente' %}
+<div class="mt-3">
+    <form method="POST" action="{{ url_for('confirmar_traslado', id=traslado.id) }}" style="display:inline;">
+        <button type="submit" class="btn btn-success" onclick="return confirm('¿Confirmar recepción del traslado?')">
+            <i class="bi bi-check-lg"></i> Confirmar Recepción
+        </button>
+    </form>
+    <a href="{{ url_for('cancelar_traslado', id=traslado.id) }}" class="btn btn-danger" onclick="return confirm('¿Cancelar traslado? El stock será restaurado.')">
+        <i class="bi bi-x-lg"></i> Cancelar Traslado
+    </a>
+</div>
+{% endif %}
+
+<style>
+@media print {
+    .no-print-section {
+        display: block !important;
+    }
+    .btn, .card-footer {
+        display: none !important;
+    }
+    body {
+        font-size: 12px;
+    }
+    .card {
+        border: none;
+        box-shadow: none;
+    }
+}
+</style>
+{% endblock %}
+

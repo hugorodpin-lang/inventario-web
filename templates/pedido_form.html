@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Nuevo Pedido{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-cart3"></i> Nuevo Pedido</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" id="pedidoForm">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" name="cliente" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Contacto</label>
+                    <input type="text" name="contacto" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="telefono" class="form-control">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Descuento ($)</label>
+                    <input type="number" step="0.01" name="descuento" class="form-control" value="0">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Observaciones</label>
+                <textarea name="observaciones" class="form-control" rows="2"></textarea>
+            </div>
+            
+            <h5 class="mt-4 mb-3">Detalles del Pedido</h5>
+            <div id="detalles">
+                <div class="row mb-3 detalle-row">
+                    <div class="col-md-5">
+                        <select name="producto_id[]" class="form-select producto-select" required onchange="actualizarStock(this)">
+                            <option value="">Seleccionar producto...</option>
+                            {% for p in productos %}
+                            <option value="{{ p.id }}" data-precio="{{ p.precio_venta }}" data-stock="{{ p.stock_disponible }}">{{ p.nombre }} - Disp: {{ p.stock_disponible }} - ${{ p.precio_venta }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" name="cantidad[]" class="form-control" placeholder="Cantidad" min="1" required onchange="actualizarPrecio(this)">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="number" step="0.01" name="precio[]" class="form-control" placeholder="Precio" required>
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" class="btn btn-danger btn-remove" disabled><i class="bi bi-trash"></i></button>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="button" class="btn btn-outline-primary mb-4" onclick="agregarDetalle()"><i class="bi bi-plus-lg"></i> Agregar Producto</button>
+            
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success">Crear Pedido</button>
+                <a href="{{ url_for('pedidos') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function actualizarStock(select) {
+    const row = select.closest('.detalle-row');
+    const cantidadInput = row.querySelector('input[name="cantidad[]"]');
+    const selectedOption = select.options[select.selectedIndex];
+    const stockDisponible = parseInt(selectedOption.dataset.stock) || 0;
+    const precio = selectedOption.dataset.precio || 0;
+    
+    cantidadInput.max = stockDisponible;
+    if (parseInt(cantidadInput.value) > stockDisponible) {
+        cantidadInput.value = stockDisponible;
+    }
+    
+    const precioInput = row.querySelector('input[name="precio[]"]');
+    if (precioInput.value === '' || precioInput.value === '0') {
+        precioInput.value = precio;
+    }
+}
+
+function actualizarPrecio(input) {
+    const row = input.closest('.detalle-row');
+    const select = row.querySelector('select');
+    const selectedOption = select.options[select.selectedIndex];
+    const stockDisponible = parseInt(selectedOption.dataset.stock) || 0;
+    
+    if (parseInt(input.value) > stockDisponible) {
+        input.value = stockDisponible;
+        alert('Stock disponible: ' + stockDisponible);
+    }
+}
+
+function agregarDetalle() {
+    const detalles = document.getElementById('detalles');
+    const template = document.querySelector('.detalle-row').cloneNode(true);
+    template.querySelector('select').selectedIndex = 0;
+    template.querySelector('input[name="cantidad[]"]').value = '';
+    template.querySelector('input[name="precio[]"]').value = '';
+    template.querySelector('.btn-remove').disabled = false;
+    template.querySelector('.btn-remove').onclick = function() { eliminarDetalle(this); };
+    detalles.appendChild(template);
+}
+
+function eliminarDetalle(btn) {
+    const row = btn.closest('.detalle-row');
+    const detalles = document.getElementById('detalles');
+    if (detalles.children.length > 1) {
+        row.remove();
+    }
+}
+
+document.querySelectorAll('.btn-remove').forEach(btn => {
+    btn.addEventListener('click', function() {
+        eliminarDetalle(this);
+    });
+});
+</script>
+{% endblock %}
+

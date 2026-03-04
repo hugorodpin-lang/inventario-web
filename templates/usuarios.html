@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Usuarios - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-people"></i> Usuarios</h2>
+    <a href="{{ url_for('nuevo_usuario') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Usuario</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>{{ u.username }}</td>
+                        <td>{{ u.nombre }}</td>
+                        <td>
+                            {% if u.rol == 'admin' %}
+                            <span class="badge bg-primary">Administrador</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Empleado</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.activo %}
+                            <span class="badge bg-success">Activo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactivo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.id != current_user.id %}
+                            <a href="{{ url_for('editar_usuario', id=u.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('eliminar_usuario', id=u.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar usuario?')"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No hay usuarios</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

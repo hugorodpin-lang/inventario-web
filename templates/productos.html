@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Productos - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box"></i> Productos</h2>
+    {% if current_user.rol == 'admin' %}
+    <a href="{{ url_for('nuevo_producto') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Producto</a>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="categoria" class="form-select">
+                    <option value="">Todas las categorías</option>
+                    {% for c in categorias %}
+                    <option value="{{ c.id }}">{{ c.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Apartado</th>
+                        <th>Disponible</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in productos %}
+                    <tr class="{{ 'table-warning' if p.stock_actual <= p.stock_minimo }}">
+                        <td>{{ p.codigo }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>{{ p.categoria.nombre if p.categoria else '-' }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if p.stock_actual <= p.stock_minimo else 'bg-success' }}">
+                                {{ p.stock_actual }} {{ p.unidad }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if p.stock_apartado > 0 %}
+                            <span class="badge bg-warning">{{ p.stock_apartado }}</span>
+                            {% else %}
+                            <span class="text-muted">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if p.stock_disponible <= 0 else 'bg-info' }}">
+                                {{ p.stock_disponible }} {{ p.unidad }}
+                            </span>
+                        </td>
+                        <td>${{ "%.2f"|format(p.precio_compra) }}</td>
+                        <td>${{ "%.2f"|format(p.precio_venta) }}</td>
+                        <td>
+                            {% if current_user.rol == 'admin' %}
+                            <a href="{{ url_for('editar_producto', id=p.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('eliminar_producto', id=p.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar producto?')"><i class="bi bi-trash"></i></a>
+                            <a href="{{ url_for('kardex_producto', producto_id=p.id) }}" class="btn btn-sm btn-outline-info" title="Ver Kardex"><i class="bi bi-journal-text"></i></a>
+                            {% else %}
+                            <span class="text-muted"><i class="bi bi-lock"></i> Solo consulta</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay productos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

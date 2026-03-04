@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Configuración de Empresa{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-building"></i> Configuración de la Empresa</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="row mb-4">
+                        <div class="col-md-12 text-center">
+                            <label class="form-label">Logo de la Empresa</label>
+                            <div class="mb-2">
+                                {% if config.logo %}
+                                <img src="{{ url_for('static', filename=config.logo) }}" alt="Logo actual" class="img-thumbnail" style="max-height: 150px;">
+                                <p class="text-muted small">Logo actual</p>
+                                {% else %}
+                                <div class="bg-light d-inline-block p-4 rounded">
+                                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                </div>
+                                <p class="text-muted small">No hay logo cargado</p>
+                                {% endif %}
+                            </div>
+                            <input type="file" class="form-control" name="logo" accept="image/*">
+                            <small class="text-muted">Formatos aceptados: JPG, PNG, GIF</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nombre de la Empresa *</label>
+                            <input type="text" class="form-control" name="nombre" value="{{ config.nombre }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">RUC / Identificación</label>
+                            <input type="text" class="form-control" name="ruc" value="{{ config.ruc }}">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input type="text" class="form-control" name="direccion" value="{{ config.direccion }}">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Teléfono</label>
+                            <input type="text" class="form-control" name="telefono" value="{{ config.telefono }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" name="email" value="{{ config.email }}">
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Nota:</strong> Esta información aparecerá en las cotizaciones impresas. 
+                        Configure los datos de su empresa y cargue su logo para personalizar sus documentos.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

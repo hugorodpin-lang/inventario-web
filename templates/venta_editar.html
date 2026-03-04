@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Editar Venta{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-cart-check"></i> Editar Venta #{{ venta.id }}</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" class="form-control" value="{{ venta.cliente }}" disabled>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Total</label>
+                    <input type="text" class="form-control" value="${{ venta.total }}" disabled>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="completada" {% if venta.estado == 'completada' %}selected{% endif %}>Completada</option>
+                    <option value="cancelada" {% if venta.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <a href="{{ url_for('ventas') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

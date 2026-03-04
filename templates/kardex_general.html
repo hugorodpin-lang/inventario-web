@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Kardex General - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-journal-text"></i> Kardex General</h2>
+    <a href="{{ url_for('productos') }}" class="btn btn-outline-primary"><i class="bi bi-box"></i> Ver Productos</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Fecha Inicio</label>
+                <input type="date" name="fecha_inicio" class="form-control" value="{{ fecha_inicio or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Fecha Fin</label>
+                <input type="date" name="fecha_fin" class="form-control" value="{{ fecha_fin or '' }}">
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2"><i class="bi bi-search"></i> Filtrar</button>
+                <a href="{{ url_for('kardex') }}" class="btn btn-outline-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Entradas</th>
+                        <th>Salidas</th>
+                        <th>Saldo Actual</th>
+                        <th>Movimientos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in kardex_data %}
+                    <tr>
+                        <td>{{ item.producto.codigo }}</td>
+                        <td>{{ item.producto.nombre }}</td>
+                        <td>{{ item.producto.categoria.nombre if item.producto.categoria else '-' }}</td>
+                        <td class="text-success"><strong>{{ item.entradas }}</strong></td>
+                        <td class="text-danger"><strong>{{ item.salidas }}</strong></td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if item.saldo_actual <= item.producto.stock_minimo else 'bg-success' }}">
+                                {{ item.saldo_actual }} {{ item.producto.unidad }}
+                            </span>
+                        </td>
+                        <td>{{ item.movimientos_count }}</td>
+                        <td>
+                            <a href="{{ url_for('kardex_producto', producto_id=item.producto.id) }}" class="btn btn-sm btn-outline-primary" title="Ver Kardex Detallado">
+                                <i class="bi bi-eye"></i> Ver Detalle
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted">
+                            No hay movimientos registrados en el período seleccionado
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

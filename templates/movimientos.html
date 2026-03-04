@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Movimientos - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-arrow-left-right"></i> Movimientos</h2>
+    <a href="{{ url_for('nuevo_movimiento') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Movimiento</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="tipo" class="form-select">
+                    <option value="">Todos los tipos</option>
+                    <option value="entrada">Entradas</option>
+                    <option value="salida">Salidas</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Motivo</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in movimientos %}
+                    <tr>
+                        <td>{{ m.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ m.producto_rel.nombre if m.producto_rel else 'N/A' }}</td>
+                        <td>
+                            {% if m.tipo == 'entrada' %}
+                            <span class="badge bg-success">Entrada</span>
+                            {% else %}
+                            <span class="badge bg-danger">Salida</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.motivo or '-' }}</td>
+                        <td>{{ m.usuario_rel.nombre if m.usuario_rel else 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay movimientos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

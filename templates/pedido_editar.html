@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Editar Pedido #{{ pedido.id }}{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-cart3"></i> Editar Pedido #{{ pedido.id }}</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Cliente</label>
+                    <input type="text" name="cliente" class="form-control" value="{{ pedido.cliente or '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Contacto</label>
+                    <input type="text" name="contacto" class="form-control" value="{{ pedido.contacto or '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Teléfono</label>
+                    <input type="text" name="telefono" class="form-control" value="{{ pedido.telefono or '' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" value="{{ pedido.email or '' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Estado</label>
+                    <select name="estado" class="form-select">
+                        <option value="pendiente" {% if pedido.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                        <option value="completado" {% if pedido.estado == 'completado' %}selected{% endif %}>Completado</option>
+                        <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Observaciones</label>
+                <textarea name="observaciones" class="form-control" rows="3">{{ pedido.observaciones or '' }}</textarea>
+            </div>
+            
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                <a href="{{ url_for('pedidos') }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

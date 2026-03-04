@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Reporte de Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Reporte de Inventario</h2>
+    <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>P. Compra</th>
+                        <th>P. Venta</th>
+                        <th>Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set total_valor = 0 %}
+                    {% for p in productos %}
+                    {% set valor = p.stock_actual * p.precio_compra %}
+                    {% set total_valor = total_valor + valor %}
+                    <tr>
+                        <td>{{ p.codigo }}</td>
+                        <td>{{ p.nombre }}</td>
+                        <td>{{ p.categoria.nombre if p.categoria else '-' }}</td>
+                        <td>{{ p.stock_actual }} {{ p.unidad }}</td>
+                        <td>${{ "%.2f"|format(p.precio_compra) }}</td>
+                        <td>${{ "%.2f"|format(p.precio_venta) }}</td>
+                        <td>${{ "%.2f"|format(valor) }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr class="table-secondary">
+                        <td colspan="6" class="text-end"><strong>Valor Total del Inventario:</strong></td>
+                        <td><strong>${{ "%.2f"|format(total_valor) }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}{% if producto %}Editar{% else %}Nuevo{% endif %} Producto{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-box"></i> {% if producto %}Editar{% else %}Nuevo{% endif %} Producto</h2>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" id="productoForm" data-producto-id="{{ producto.id if producto else '' }}">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Código *</label>
+                    <input type="text" name="codigo" id="codigo" class="form-control" value="{{ producto.codigo if producto else '' }}" required>
+                    <div id="codigoFeedback" class="invalid-feedback" style="display: none;">
+                        El código ya está registrado
+                    </div>
+                    <div id="codigoSuccess" class="valid-feedback" style="display: none;">
+                        Código disponible
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text" name="nombre" class="form-control" value="{{ producto.nombre if producto else '' }}" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Descripción</label>
+                <textarea name="descripcion" class="form-control" rows="2">{{ producto.descripcion if producto else '' }}</textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Categoría</label>
+                    <select name="categoria_id" class="form-select">
+                        <option value="">Sin categoría</option>
+                        {% for c in categorias %}
+                        <option value="{{ c.id }}" {% if producto and producto.categoria_id == c.id %}selected{% endif %}>{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Unidad</label>
+                    <input type="text" name="unidad" class="form-control" value="{{ producto.unidad if producto else 'und' }}">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Stock Actual</label>
+                    <input type="number" name="stock_actual" class="form-control" value="{{ producto.stock_actual if producto else '0' }}" {% if producto %}readonly{% endif %}>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Stock Mínimo</label>
+                    <input type="number" name="stock_minimo" class="form-control" value="{{ producto.stock_minimo if producto else '0' }}">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Precio Compra</label>
+                    <input type="number" step="0.01" name="precio_compra" class="form-control" value="{{ producto.precio_compra if producto else '0' }}">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Precio Venta</label>
+                <input type="number" step="0.01" name="precio_venta" class="form-control" value="{{ producto.precio_venta if producto else '0' }}">
+            </div>
+            <button type="submit" class="btn btn-primary" id="btnGuardar">Guardar</button>
+            <a href="{{ url_for('productos') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const codigoInput = document.getElementById('codigo');
+    const codigoFeedback = document.getElementById('codigoFeedback');
+    const codigoSuccess = document.getElementById('codigoSuccess');
+    const btnGuardar = document.getElementById('btnGuardar');
+    const form = document.getElementById('productoForm');
+    const productoId = form.dataset.productoId || null;
+    let codigoValido = true;
+    let timeout = null;
+
+    function verificarCodigo(codigo) {
+        if (!codigo || codigo.trim() === '') {
+            codigoInput.classList.remove('is-invalid', 'is-valid');
+            codigoFeedback.style.display = 'none';
+            codigoSuccess.style.display = 'none';
+            codigoValido = true;
+            btnGuardar.disabled = false;
+            return;
+        }
+
+        let url = '/api/verificar-codigo?codigo=' + encodeURIComponent(codigo);
+        if (productoId) {
+            url += '&producto_id=' + productoId;
+        }
+
+        fetch(url)
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                if (data.existe) {
+                    codigoInput.classList.add('is-invalid');
+                    codigoInput.classList.remove('is-valid');
+                    codigoFeedback.style.display = 'block';
+                    codigoSuccess.style.display = 'none';
+                    codigoValido = false;
+                    btnGuardar.disabled = true;
+                } else {
+                    codigoInput.classList.add('is-valid');
+                    codigoInput.classList.remove('is-invalid');
+                    codigoFeedback.style.display = 'none';
+                    codigoSuccess.style.display = 'block';
+                    codigoValido = true;
+                    btnGuardar.disabled = false;
+                }
+            })
+            .catch(function(error) {
+                console.error('Error al verificar código:', error);
+            });
+    }
+
+    codigoInput.addEventListener('input', function() {
+        clearTimeout(timeout);
+        var self = this;
+        timeout = setTimeout(function() {
+            verificarCodigo(self.value);
+        }, 300);
+    });
+
+    if (codigoInput.value) {
+        verificarCodigo(codigoInput.value);
+    }
+
+    form.addEventListener('submit', function(e) {
+        if (!codigoValido) {
+            e.preventDefault();
+            alert('El código del producto ya está registrado. Por favor ingrese un código diferente.');
+            codigoInput.focus();
+        }
+    });
+});
+</script>
+{% endblock %}
+

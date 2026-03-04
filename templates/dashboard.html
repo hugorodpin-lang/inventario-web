@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Inventario{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5><i class="bi bi-box"></i> Productos</h5>
+                <h2>{{ total_productos }}</h2>
+                <small>Total en inventario</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <h5><i class="bi bi-exclamation-triangle"></i> Stock Bajo</h5>
+                <h2>{{ productos_bajos }}</h2>
+                <small>Productos con mínimo</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5><i class="bi bi-cart-check"></i> Ventas Hoy</h5>
+                <h2>{{ ventas_hoy }}</h2>
+                <small>Transacciones</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5><i class="bi bi-cart-plus"></i> Compras Pend.</h5>
+                <h2>{{ compras_pendientes }}</h2>
+                <small>Por pagar</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="bi bi-currency-dollar"></i> Ventas del Mes: ${{ "%.2f"|format(total_ventas_mes) }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-clock-history"></i> Últimos Movimientos</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Producto</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Motivo</th>
+                        <th>Usuario</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for m in ultimos_movimientos %}
+                    <tr>
+                        <td>{{ m.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ m.producto_rel.nombre if m.producto_rel else 'N/A' }}</td>
+                        <td>
+                            {% if m.tipo == 'entrada' %}
+                            <span class="badge bg-success">Entrada</span>
+                            {% else %}
+                            <span class="badge bg-danger">Salida</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ m.cantidad }}</td>
+                        <td>{{ m.motivo or '-' }}</td>
+                        <td>{{ m.usuario_rel.nombre if m.usuario_rel else 'N/A' }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay movimientos recientes</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

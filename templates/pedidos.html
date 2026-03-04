@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Pedidos{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cart3"></i> Pedidos</h2>
+    <a href="{{ url_for('nuevo_pedido') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nuevo Pedido</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="completado">Completado</option>
+                    <option value="cancelado">Cancelado</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Vendedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td>#{{ p.id }}</td>
+                        <td>{{ p.fecha.strftime('%d/%m/%Y %H:%M') }}</td>
+                        <td>{{ p.cliente or '-' }}</td>
+                        <td>${{ "%.2f"|format(p.total) }}</td>
+                        <td>
+                            {% if p.estado == 'pendiente' %}
+                            <span class="badge bg-warning">Pendiente</span>
+                            {% elif p.estado == 'completado' %}
+                            <span class="badge bg-success">Completado</span>
+                            {% else %}
+                            <span class="badge bg-danger">Cancelado</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ p.usuario.nombre if p.usuario else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('ver_pedido', id=p.id) }}" class="btn btn-sm btn-outline-info" title="Ver"><i class="bi bi-eye"></i></a>
+                            {% if p.estado == 'pendiente' %}
+                            <a href="{{ url_for('editar_pedido', id=p.id) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url_for('completar_pedido', id=p.id) }}" class="btn btn-sm btn-outline-success" title="Completar (Venta)" onclick="return confirm('¿Confirmar pedido y generar venta?')"><i class="bi bi-check-circle"></i></a>
+                            <a href="{{ url_for('cancelar_pedido', id=p.id) }}" class="btn btn-sm btn-outline-danger" title="Cancelar" onclick="return confirm('¿Cancelar pedido y liberar stock?')"><i class="bi bi-x-circle"></i></a>
+                            {% endif %}
+                            <a href="{{ url_for('eliminar_pedido', id=p.id) }}" class="btn btn-sm btn-outline-danger" title="Eliminar" onclick="return confirm('¿Eliminar pedido?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay pedidos</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

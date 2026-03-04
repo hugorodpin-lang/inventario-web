@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Stock en {{ sucursal.nombre }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-box-seam"></i> Stock en: {{ sucursal.nombre }}</h2>
+    <a href="{{ url_for('sucursales') }}" class="btn btn-secondary">Volver a Sucursales</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <p><strong>Dirección:</strong> {{ sucursal.direccion or 'No especificada' }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Teléfono:</strong> {{ sucursal.telefono or 'No especificado' }}</p>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Stock Mínimo</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in stocks %}
+                    <tr class="{{ 'table-warning' if s.cantidad <= s.producto.stock_minimo }}">
+                        <td>{{ s.producto.codigo }}</td>
+                        <td>{{ s.producto.nombre }}</td>
+                        <td>{{ s.producto.categoria.nombre if s.producto.categoria else '-' }}</td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if s.cantidad <= s.producto.stock_minimo else 'bg-success' }}">
+                                {{ s.cantidad }} {{ s.producto.unidad }}
+                            </span>
+                        </td>
+                        <td>{{ s.producto.stock_minimo }} {{ s.producto.unidad }}</td>
+                        <td>
+                            {% if s.cantidad <= s.producto.stock_minimo %}
+                            <span class="text-danger">Stock Bajo</span>
+                            {% else %}
+                            <span class="text-success">Normal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No hay productos en stock</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

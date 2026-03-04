@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Ver Cotización #{{ cotizacion.id }}{% endblock %}
+
+{% block extra_css %}
+<style>
+@media print {
+    @page {
+        size: A4;
+        margin: 1cm;
+    }
+    body {
+        background: white !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .print-only {
+        display: block !important;
+    }
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .card-body {
+        padding: 0 !important;
+    }
+    .table {
+        font-size: 12px;
+    }
+    .cotizacion-container {
+        max-width: 100% !important;
+        padding: 0 !important;
+    }
+}
+
+.print-only {
+    display: none;
+}
+
+.cotizacion-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cotizacion-container">
+    <!-- Botones de acción (no visibles al imprimir) -->
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2><i class="bi bi-file-earmark-text"></i> Cotización #{{ cotizacion.id }}</h2>
+        <button onclick="window.print()" class="btn btn-primary"><i class="bi bi-printer"></i> Imprimir</button>
+    </div>
+
+    <!-- Cotización para imprimir -->
+    <div class="card">
+        <div class="card-body p-4">
+            <!-- Encabezado de la empresa -->
+            <div class="row mb-4 pb-3 border-bottom">
+                <div class="col-md-8">
+                    {% if empresa.logo %}
+                    <img src="{{ url_for('static', filename=empresa.logo) }}" alt="Logo" style="max-height: 80px; margin-bottom: 10px;">
+                    {% endif %}
+                    <h4 class="mb-1">{{ empresa.nombre or 'Mi Empresa' }}</h4>
+                    {% if empresa.direccion %}
+                    <p class="mb-1"><i class="bi bi-geo-alt"></i> {{ empresa.direccion }}</p>
+                    {% endif %}
+                    {% if empresa.telefono %}
+                    <p class="mb-1"><i class="bi bi-telephone"></i> {{ empresa.telefono }}</p>
+                    {% endif %}
+                    {% if empresa.email %}
+                    <p class="mb-0"><i class="bi bi-envelope"></i> {{ empresa.email }}</p>
+                    {% endif %}
+                    {% if empresa.ruc %}
+                    <p class="mb-0"><i class="bi bi-file-text"></i> RUC: {{ empresa.ruc }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 text-end">
+                    <h2 class="text-primary">COTIZACIÓN</h2>
+                    <p class="mb-1"><strong>N°:</strong> {{ cotizacion.id }}</p>
+                    <p class="mb-1"><strong>Fecha:</strong> {{ cotizacion.fecha.strftime('%d/%m/%Y') }}</p>
+                    <p class="mb-0"><strong>Validez:</strong> {{ cotizacion.validez }} días</p>
+                </div>
+            </div>
+
+            <!-- Datos del cliente -->
+            <div class="mb-4 p-3 bg-light rounded">
+                <h5 class="border-bottom pb-2 mb-2">Datos del Cliente</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p class="mb-1"><strong>Cliente:</strong> {{ cotizacion.cliente }}</p>
+                        {% if cotizacion.contacto %}
+                        <p class="mb-1"><strong>Contacto:</strong> {{ cotizacion.contacto }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if cotizacion.telefono %}
+                        <p class="mb-1"><strong>Teléfono:</strong> {{ cotizacion.telefono }}</p>
+                        {% endif %}
+                        {% if cotizacion.email %}
+                        <p class="mb-0"><strong>Email:</strong> {{ cotizacion.email }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de productos -->
+            <div class="table-responsive mb-4">
+                <table class="table table-bordered table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th class="text-start">#</th>
+                            <th class="text-start">Producto</th>
+                            <th class="text-center">Cantidad</th>
+                            <th class="text-end">P. Unitario</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for d in cotizacion.detalles %}
+                        <tr>
+                            <td class="text-start">{{ loop.index }}</td>
+                            <td class="text-start">{{ d.producto.nombre if d.producto else 'N/A' }}</td>
+                            <td class="text-center">{{ d.cantidad }}</td>
+                            <td class="text-end">${{ "%.2f"|format(d.precio_unitario) }}</td>
+                            <td class="text-end">${{ "%.2f"|format(d.subtotal) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totales -->
+            <div class="row justify-content-end">
+                <div class="col-md-5">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="text-end"><strong>Subtotal:</strong></td>
+                            <td class="text-end">${{ "%.2f"|format(cotizacion.subtotal) }}</td>
+                        </tr>
+                        {% if cotizacion.descuento > 0 %}
+                        <tr>
+                            <td class="text-end"><strong>Descuento:</strong></td>
+                            <td class="text-end">-${{ "%.2f"|format(cotizacion.descuento) }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr class="table-primary">
+                            <td class="text-end"><strong>TOTAL:</strong></td>
+                            <td class="text-end"><strong>${{ "%.2f"|format(cotizacion.total) }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Observaciones -->
+            {% if cotizacion.observaciones %}
+            <div class="mt-4 p-3 bg-light rounded">
+                <h5 class="border-bottom pb-2 mb-2">Observaciones</h5>
+                <p class="mb-0">{{ cotizacion.observaciones }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Información del vendedor -->
+            <div class="mt-4 p-3 bg-light rounded">
+                <h5 class="border-bottom pb-2 mb-2">Vendedor</h5>
+                <p class="mb-1"><strong>Nombre:</strong> {{ cotizacion.usuario.nombre if cotizacion.usuario else 'N/A' }}</p>
+                {% if cotizacion.usuario and cotizacion.usuario.username %}
+                <p class="mb-0"><strong>Usuario:</strong> {{ cotizacion.usuario.username }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Estado de la cotización (solo visible en pantalla) -->
+            <div class="mt-4 no-print">
+                <strong>Estado:</strong> 
+                {% if cotizacion.estado == 'pendiente' %}
+                <span class="badge bg-warning">Pendiente</span>
+                {% elif cotizacion.estado == 'aceptada' %}
+                <span class="badge bg-success">Aceptada</span>
+                {% else %}
+                <span class="badge bg-danger">Rechazada</span>
+                {% endif %}
+            </div>
+
+            <!-- Pie de página -->
+            <div class="mt-5 pt-3 border-top text-center text-muted">
+                <small>
+                    {% if empresa.nombre %}
+                    {{ empresa.nombre }} - 
+                    {% endif %}
+                    {% if empresa.email %}
+                    {{ empresa.email }}
+                    {% endif %}
+                    {% if empresa.telefono %}
+                    - {{ empresa.telefono }}
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones de acción inferiores (no visibles al imprimir) -->
+    <div class="mt-3 no-print">
+        <a href="{{ url_for('cotizaciones') }}" class="btn btn-secondary">Volver</a>
+        <a href="{{ url_for('editar_cotizacion', id=cotizacion.id) }}" class="btn btn-primary">Editar Estado</a>
+    </div>
+</div>
+{% endblock %}
+

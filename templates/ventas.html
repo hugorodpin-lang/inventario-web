@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Ventas - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cart-check"></i> Ventas</h2>
+    <a href="{{ url_for('nueva_venta') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva Venta</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="completada">Completada</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Factura</th>
+                        <th>Subtotal</th>
+                        <th>Descuento</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in ventas %}
+                    <tr>
+                        <td>#{{ v.id }}</td>
+                        <td>{{ v.fecha.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ v.cliente or '-' }}</td>
+                        <td>{{ v.numero_factura or '-' }}</td>
+                        <td>${{ "%.2f"|format(v.subtotal) }}</td>
+                        <td>${{ "%.2f"|format(v.descuento) }}</td>
+                        <td><strong>${{ "%.2f"|format(v.total) }}</strong></td>
+                        <td>
+                            {% if v.estado == 'completada' %}
+                            <span class="badge bg-success">Completada</span>
+                            {% else %}
+                            <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('editar_venta', id=v.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center text-muted">No hay ventas</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

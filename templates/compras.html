@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Compras - Inventario{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cart-plus"></i> Compras</h2>
+    <a href="{{ url_for('nueva_compra') }}" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Nueva Compra</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <select name="estado" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="pagada">Pagada</option>
+                    <option value="cancelada">Cancelada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary">Filtrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Proveedor</th>
+                        <th>Factura</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in compras %}
+                    <tr>
+                        <td>#{{ c.id }}</td>
+                        <td>{{ c.fecha.strftime('%Y-%m-%d') }}</td>
+                        <td>{{ c.proveedor or '-' }}</td>
+                        <td>{{ c.numero_factura or '-' }}</td>
+                        <td>${{ "%.2f"|format(c.total) }}</td>
+                        <td>
+                            {% if c.estado == 'pendiente' %}
+                            <span class="badge bg-warning">Pendiente</span>
+                            {% elif c.estado == 'pagada' %}
+                            <span class="badge bg-success">Pagada</span>
+                            {% else %}
+                            <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('editar_compra', id=c.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">No hay compras</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
